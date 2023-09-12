@@ -122,3 +122,24 @@ response_by_station
 
 ```
 
+
+# FROM KATIE
+```{r}
+# simple visualizations
+#distribution of calls by time of day by station
+library(tidyr)
+x$T.DISP <- format(as.POSIXct(x$DT.DISP,format="%Y:%m:%d %H:%M:%S"),"%H:%M:%S")
+x$D.DISP <- format(as.POSIXct(x$DT.DISP,format="%Y:%m:%d %H:%M:%S"),"%Y:%m:%d")
+
+x$BT.DISP <- format(as.POSIXct(x$T.DISP, format = "%H:%M:%S"), "%H")
+
+ggplot(data = x, aes(x = BT.DISP))+
+  geom_bar(stat = "count", fill = "blue")+
+  facet_wrap(.~x$REF.GRID)+
+  theme(axis.text.x = element_text(size = 8, angle = 90))+
+  gghighlight(max())+
+  labs(title = "Distribution of time of day by station",
+       x = "Time of Day by Hour",
+       fill = "Station")
+
+```
