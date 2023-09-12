@@ -1,0 +1,124 @@
+---
+title: "EMS-EDA (Group C: Evan, Katie, Sonali, Jason)"
+format: 
+  html:
+    toc: true
+editor: visual
+---
+
+```{r}
+#| label: load-packages-data
+#| message: false
+
+library(tidyverse)
+library(scales)
+library(knitr)
+library(ggplot2)
+library(tidyr)
+```
+
+• So indicates the existing south EMS station
+• Ce indicates the existing central EMS station
+• NN indicates the proposed near–north EMS station
+• FN indicates the proposed far–north EMS station
+• Dist indicates distance travelled in meters.
+• eTT indicates an estimated travel time.
+• GL is the “green light” distance.
+• Pe is the pessimistic travel time in traffic.
+• BG is the best–guess travel time in traffic.
+• Op is the optimistic travel time in traffic.
+• Hosp is the hospital used, if such a trip is made.
+
+```{r}
+# Emergency vs Non-emergency
+count_emergency <- sum(x$DISPATCH.PRIORITY.NAME == "Emergency")
+count_nonEmergency = nrow(x) - count_emergency
+
+count_emergency # 389
+count_nonEmergency # 108
+
+# Data frame to store the counts
+emergency_vs_nonEmergency_counts <- c(count_emergency, count_nonEmergency)
+categories <- c("Emergency", "Non-emergency")
+emergencyVsNonEmergencyDataFrame <- data.frame(categories, emergency_vs_nonEmergency_counts)
+
+# Pie chart with percentage labels
+percentage_labels <- percent(emergency_vs_nonEmergency_counts / sum(emergency_vs_nonEmergency_counts))
+
+# Create a vector of labels with category names and percentages
+labels <- paste(categories, "-", percentage_labels)
+
+# Create the pie chart with the labels
+pie(emergency_vs_nonEmergency_counts, labels = labels, main = "Emergency vs Non-emergency")
+```
+
+
+
+```{r}
+# Emergency vs Non-emergency by Station
+breakdown <- table(x$REF.GRID, x$DISPATCH.PRIORITY.NAME)
+breakdown
+
+breakdown_df <- as.data.frame.matrix(breakdown)
+
+row_sums <- rowSums(breakdown_df)
+
+breakdown_df <- 100 * breakdown_df / row_sums
+
+breakdown_df <- round(breakdown_df, 0)
+
+#breakdown_df
+
+breakdown_df$REF.GRID <- rownames(breakdown_df)
+
+breakdown_long <- gather(breakdown_df, "Priority", "Count", -REF.GRID)
+
+breakdown_long
+
+ggplot(breakdown_long, aes(x = REF.GRID, y = Count, fill = Priority)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Emergency vs. Non-Emergency Breakdown by REF.GRID",
+       x = "REF.GRID",
+       y = "Percentage") +
+  scale_fill_manual(values = c("Emergency" = "#FF9999", "Non Emergency" = "#AEDFF7")) +
+  theme_minimal()
+```
+
+
+
+
+
+```{r}
+### from Sonali
+summary(x)
+
+x <- x %>%
+  mutate(response_time = (as.numeric(observedTT))/60)
+
+ggplot(x, aes(x = response_time)) +
+  geom_histogram(binwidth = 1, fill = "blue", color = "white") +
+  labs(x = "Response Time (mins)", y = "Frequency") +
+  ggtitle("Distribution of Response Times") + facet_wrap(~REF.GRID)
+
+x_clean <- na.omit(x)
+response_by_station <- x_clean %>%
+  group_by(REF.GRID) %>%
+  summarize(
+    Mean_Response_Time = mean(response_time),
+    Median_Response_Time = median(response_time),
+    SD_Response_Time = sd(response_time)
+  )
+response_by_station
+```
+
+
+
+# Average & Distribution of 
+```
+
+
+```{r}
+# simple visualizations
+
+```
+
